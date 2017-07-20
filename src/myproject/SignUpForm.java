@@ -77,10 +77,10 @@ public class SignUpForm extends javax.swing.JInternalFrame {
         jLabel6 = new javax.swing.JLabel();
         tf2 = new javax.swing.JPasswordField();
         tf3 = new javax.swing.JPasswordField();
-        tf4 = new javax.swing.JTextField();
         tf5 = new javax.swing.JPasswordField();
         tf6 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        tf4 = new javax.swing.JComboBox<>();
 
         setClosable(true);
         setMaximizable(true);
@@ -108,7 +108,6 @@ public class SignUpForm extends javax.swing.JInternalFrame {
         getContentPane().add(jLabel6, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 250, -1, -1));
         getContentPane().add(tf2, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 90, 190, -1));
         getContentPane().add(tf3, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 130, 190, -1));
-        getContentPane().add(tf4, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 170, 190, -1));
         getContentPane().add(tf5, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 210, 190, -1));
         getContentPane().add(tf6, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 250, 190, -1));
 
@@ -119,6 +118,14 @@ public class SignUpForm extends javax.swing.JInternalFrame {
             }
         });
         getContentPane().add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 310, -1, -1));
+
+        tf4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Choose..", "What is your Favourite Color?", "Who is your Favorite Author?", "What is your Pet's name?", "In which Town Your Mother were Born?", "In Which town You were Born?", "What was Your First Number?", "Who is Your Favorite Teacher?", " " }));
+        tf4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tf4ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(tf4, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 170, 220, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -137,12 +144,18 @@ public class SignUpForm extends javax.swing.JInternalFrame {
             }
         else
         {
-        hintq=tf4.getText();
-        
+        hintq=tf4.getSelectedItem().toString();
+            if(hintq.equals("Choose..")==true)
+            {
+                JOptionPane.showMessageDialog(this,"Cosse Correct Hint Question");
+            }
+        else
+        {        
         ch=tf5.getPassword();
         hinta=new String(ch);
         
         email=tf6.getText();
+        }
         }
         
       if(username.isEmpty()||pass.isEmpty()||rpass.isEmpty()||hintq.isEmpty()||hinta.isEmpty()||email.isEmpty())
@@ -188,6 +201,10 @@ public class SignUpForm extends javax.swing.JInternalFrame {
       }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void tf4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tf4ActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
@@ -200,7 +217,7 @@ public class SignUpForm extends javax.swing.JInternalFrame {
     private javax.swing.JTextField tf1;
     private javax.swing.JPasswordField tf2;
     private javax.swing.JPasswordField tf3;
-    private javax.swing.JTextField tf4;
+    private javax.swing.JComboBox<String> tf4;
     private javax.swing.JPasswordField tf5;
     private javax.swing.JTextField tf6;
     // End of variables declaration//GEN-END:variables

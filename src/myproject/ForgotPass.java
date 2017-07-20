@@ -4,18 +4,65 @@
  * and open the template in the editor.
  */
 package myproject;
-
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.sql.*;
+import java.util.Random;
+import javax.swing.JOptionPane;
+import org.apache.commons.mail.DefaultAuthenticator;
+import org.apache.commons.mail.Email;
+import org.apache.commons.mail.SimpleEmail;
 /**
  *
  * @author scarletspeedster
  */
+
 public class ForgotPass extends javax.swing.JInternalFrame {
 
     /**
      * Creates new form ForgotPass
      */
+    Connection cn;
+    PreparedStatement st;
+    ResultSet rs;
+    
+    String username,hinta;
+    char ch[];
+    String sql,hintq;
+    String newpass;
+    String useremail;
+    
+    public void MyConnection()
+    {
+        try
+        {
+          Class.forName("com.mysql.jdbc.Driver");
+          cn=DriverManager.getConnection("jdbc:mysql://localhost:3306/LallyInfosysProject?autoReconnect=true&useSSL=true","scarlet","Lmno1996&&");
+        }
+        catch(Exception e)
+        {
+            JOptionPane.showMessageDialog(this,e);
+        }
+       
+    }
+    public void Close()
+    {
+        try
+        {
+            cn.close();
+        }
+        catch(Exception e)
+        {
+            MyConnection();
+            JOptionPane.showMessageDialog(this,e);
+        }
+    }
     public ForgotPass() {
+        MyConnection();
         initComponents();
+        
+        
     }
 
     /**
@@ -31,9 +78,9 @@ public class ForgotPass extends javax.swing.JInternalFrame {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         tf1 = new javax.swing.JTextField();
-        tf2 = new javax.swing.JPasswordField();
         tf3 = new javax.swing.JPasswordField();
         Recieve = new javax.swing.JButton();
+        tf2 = new javax.swing.JComboBox<>();
 
         setClosable(true);
         setMaximizable(true);
@@ -49,15 +96,123 @@ public class ForgotPass extends javax.swing.JInternalFrame {
 
         jLabel3.setText("Hint A");
         getContentPane().add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 150, -1, -1));
+
+        tf1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tf1ActionPerformed(evt);
+            }
+        });
         getContentPane().add(tf1, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 40, 190, -1));
-        getContentPane().add(tf2, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 100, 190, -1));
         getContentPane().add(tf3, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 150, 190, -1));
 
         Recieve.setText("Recieve");
+        Recieve.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                RecieveActionPerformed(evt);
+            }
+        });
         getContentPane().add(Recieve, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 220, -1, -1));
+
+        tf2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Choose..", "What is your Favourite Color?", "Who is your Favorite Author?", "What is your Pet's name?", "In which Town Your Mother were Born?", "In Which town You were Born?", "What was Your First Number?", "Who is Your Favorite Teacher?", " " }));
+        tf2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tf2ActionPerformed(evt);
+            }
+        });
+        getContentPane().add(tf2, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 90, 220, -1));
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void RecieveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_RecieveActionPerformed
+        // TODO add your handling code here:
+        try
+        {
+        username=tf1.getText();
+        hintq=tf2.getSelectedItem().toString();
+        ch=tf3.getPassword();
+        hinta=new String(ch);
+        
+        sql="select * from Users where Username=? && HintQuestion=? && HintAnswer=?";
+        st=cn.prepareStatement(sql,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+        st.setString(1,username);
+        st.setString(2,hintq);
+        st.setString(3,hinta);
+        rs=st.executeQuery();
+        rs.last();
+        if(rs.getRow()==0)
+        {
+            JOptionPane.showMessageDialog(this,"Invalid Credentials");
+        }
+            else
+            {
+                /*Fetching Email of the User from Database */
+                
+                sql="select * from Users where Username=?";
+                  st=cn.prepareStatement(sql,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+                  st.setString(1,username);
+                  rs=st.executeQuery();
+                  rs.last();
+                  useremail=rs.getString("Email");
+                  
+             /* Generating a random String of 7 characters for new Password */     
+                  Random ran=new Random();
+                    int top=6;
+                    char data=' ';
+                    String dat=" ";
+                
+                  for(int i=0;i<=top;i++)
+                    {
+                     data=(char)(ran.nextInt(25)+97);
+                        dat=data+dat;
+                    }
+                  
+                  newpass= dat;
+                  
+             
+                  /*Updating the Database with the newly generated password*/   
+             
+                  sql="Update Users "+
+                          "set Password=? where Username=?";
+                  st=cn.prepareStatement(sql,ResultSet.TYPE_SCROLL_SENSITIVE,ResultSet.CONCUR_READ_ONLY);
+                  st.setString(1,newpass);
+                  st.setString(2,username);
+                  st.executeUpdate();
+                  
+                  Email email = new SimpleEmail();
+                  email.setHostName("smtp.googlemail.com");
+                  email.setSmtpPort(465);
+                  email.setAuthentication(Configuration.getUsername(),Configuration.getPassword());
+                  
+                  //email.setAuthenticator(new DefaultAuthenticator(Configuration.getUsername(),Configuration.getPassword()));
+                  email.setSSLOnConnect(true);
+                  email.setFrom(Configuration.getUsername());
+                  email.setSubject("Reset PassWord");
+                  email.setMsg("Hey Your new Password for the Email you Registered is : "+newpass);
+                  email.addTo(useremail);
+                  email.send();
+                  JOptionPane.showMessageDialog(this,"Password Sent Succesfully");
+                  tf1.setText("");
+                  tf3.setText("");
+                  tf2.getItemAt(0);
+                  Close();
+            }
+        
+        }
+        catch(Exception e)
+        {
+            JOptionPane.showMessageDialog(this,e.getMessage());
+        }
+    }//GEN-LAST:event_RecieveActionPerformed
+
+    private void tf1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf1ActionPerformed
+        // TODO add your handling code here:
+        
+    }//GEN-LAST:event_tf1ActionPerformed
+
+    private void tf2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tf2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_tf2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -66,7 +221,7 @@ public class ForgotPass extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JTextField tf1;
-    private javax.swing.JPasswordField tf2;
+    private javax.swing.JComboBox<String> tf2;
     private javax.swing.JPasswordField tf3;
     // End of variables declaration//GEN-END:variables
 }
